@@ -20,8 +20,11 @@ const getStyles = () => {
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      width: 100%;
+      height: 100%;
     `,
     progressBarWrapper: css`
+      width: 100%;
       background-color: #2d2d42;
       border-radius: 100px;
       position: relative;
@@ -39,36 +42,30 @@ const getStyles = () => {
 
 const getProgressBarColorByValue = (value: number, tresholds: Tresholds): string => {
   const treshold = tresholds.find(
-    (treshold) => 
+    (treshold) =>
       (treshold.isFromStrict ? value > treshold.valueFrom : value >= treshold.valueFrom) &&
-      (treshold.isToStrict ?  value < treshold.valueTo : value <= treshold.valueTo)
+      (treshold.isToStrict ? value < treshold.valueTo : value <= treshold.valueTo)
   );
 
   if (!treshold) {
     return 'linear-gradient(to right, #00CA51, #00CA51)';
   }
-  console.log(treshold.gradientColors?.map(treshold => treshold.color).join(', '))
-  return treshold.isGradient ? `linear-gradient(to right, ${treshold.gradientColors?.map(treshold => treshold.color).join(', ')})` : `linear-gradient(to right, ${treshold.color}, ${treshold.color})`;
+  console.log(treshold.gradientColors?.map((treshold) => treshold.color).join(', '));
+  return treshold.isGradient
+    ? `linear-gradient(to right, ${treshold.gradientColors?.map((treshold) => treshold.color).join(', ')})`
+    : `linear-gradient(to right, ${treshold.color}, ${treshold.color})`;
 };
 
 export const ProgressBarPanel: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = useStyles2(getStyles);
 
   return (
-    <div
-      className={cx(
-        styles.wrapper,
-        css`
-          width: ${width}px;
-          height: ${height}px;
-        `
-      )}
-    >
+    <div className={styles.wrapper}>
       <div
         className={cx(
+          styles.progress,
           styles.progressBarWrapper,
           css`
-            width: ${width}px;
             height: ${options.height}px;
           `
         )}
