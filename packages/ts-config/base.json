@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "name": "base",
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "declaration": false,
+    "resolveJsonModule": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es5",
+      "esModuleInterop": true
+    },
+    "transpileOnly": true
+  },
+  
+  "extends": "@grafana/tsconfig"
+}
+
