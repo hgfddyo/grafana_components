@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PanelProps } from '@grafana/data';
-import { css, cx } from '@emotion/css';
+import { css, cx} from '@emotion/css';
 import { useStyles2 } from '@grafana/ui';
 import { Tresholds } from '@repo/treshold-editor/src';
 
 export interface ProgressBarPanelProps {
-  progressBarValue: number;
   height: number;
   tresholds: Tresholds;
+  bgColor: string;
 }
 
 interface Props extends PanelProps<ProgressBarPanelProps> {}
+
+const overrideStyles = `
+[class*="-panel-content"] {
+  padding: 0 !important;
+}
+
+[class*="-panel-header"] {
+  display: none !important;
+}`
 
 const getStyles = () => {
   return {
@@ -50,7 +59,7 @@ const getProgressBarColorByValue = (value: number, tresholds: Tresholds): string
   if (!treshold) {
     return 'linear-gradient(to right, #00CA51, #00CA51)';
   }
-  console.log(treshold.gradientColors?.map((treshold) => treshold.color).join(', '));
+
   return treshold.isGradient
     ? `linear-gradient(to right, ${treshold.gradientColors?.map((treshold) => treshold.color).join(', ')})`
     : `linear-gradient(to right, ${treshold.color}, ${treshold.color})`;
@@ -58,12 +67,36 @@ const getProgressBarColorByValue = (value: number, tresholds: Tresholds): string
 
 export const ProgressBarPanel: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = useStyles2(getStyles);
+  const valuesField = data.series?.[0]?.fields.filter(field => field.name === 'value')?.[0];
+
+  const lastValue = valuesField?.values?.slice(-1)?.[0] || 0
+  const isInIframe = window.document.URL.includes("auth_token")
+
+  useEffect(() => {
+
+    if(!isInIframe) return 
+
+    var head = document.head;
+    var style = document.createElement("style");
+
+    style.id = "override";
+    style.innerHTML = overrideStyles;
+
+    head.appendChild(style);
+
+    return () => { head.removeChild(style); }
+
+  }, [isInIframe]);
 
   return (
-    <div className={styles.wrapper}>
+    <>
+    <div className={cx(styles.wrapper,
+    css`
+    background: ${options.bgColor};
+    `
+    )}>
       <div
         className={cx(
-          styles.progress,
           styles.progressBarWrapper,
           css`
             height: ${options.height}px;
@@ -74,13 +107,14 @@ export const ProgressBarPanel: React.FC<Props> = ({ options, data, width, height
           className={cx(
             styles.progress,
             css`
-              width: ${options.progressBarValue}%;
-              border-radius: ${options.progressBarValue >= 99 ? '100px' : '100px 0px 0 100px'};
-              background-image: ${getProgressBarColorByValue(options.progressBarValue, options.tresholds)};
+              width: ${lastValue}%;
+              border-radius: ${lastValue >= 99 ? '100px' : '100px 0px 0 100px'};
+              background-image: ${getProgressBarColorByValue(lastValue, options.tresholds)};
             `
           )}
         />
       </div>
     </div>
+    </>
   );
 };

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "declaration": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
   },
   "ts-node": {
     "compilerOptions": {
